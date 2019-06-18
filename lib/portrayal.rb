@@ -2,7 +2,9 @@ require 'portrayal/version'
 require 'portrayal/schema'
 
 module Portrayal
-  def keyword(name, optional: Schema::NULL, default: Schema::NULL, &block)
+  NULL = :_portrayal_value_not_set
+
+  def keyword(name, optional: NULL, default: NULL, &block)
     unless respond_to?(:portrayal)
       class << self; attr_reader :portrayal end
       @portrayal = Schema.new

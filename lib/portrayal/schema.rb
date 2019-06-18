@@ -1,7 +1,5 @@
 module Portrayal
   class Schema
-    NULL = :_portrayal_value_not_set
-
     attr_reader :schema
 
     def initialize
