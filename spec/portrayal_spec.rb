@@ -12,7 +12,7 @@ RSpec.describe Portrayal do
   end
 
   it 'allows keyword to have a default, which makes it optional' do
-    target.keyword :two_plus_two, default: -> { 2 + 2 }
+    target.keyword :two_plus_two, default: proc { 2 + 2 }
     expect { target.new }.to_not raise_error
     expect(target.new.two_plus_two).to eq(4)
   end
@@ -24,9 +24,20 @@ RSpec.describe Portrayal do
   end
 
   it 'allows keyword to be optional with a default' do
-    target.keyword :foo, optional: true, default: -> { 2 + 2 }
+    target.keyword :foo, optional: true, default: proc { 2 + 2 }
     expect { target.new }.to_not raise_error
     expect(target.new.foo).to eq(4)
+  end
+
+  it 'calls proc defaults' do
+    target.keyword :foo, default: proc { 2 + 2 }
+    expect(target.new.foo).to eq(4)
+  end
+
+  it 'returns lambda defaults' do
+    target.keyword :foo, default: -> { 2 + 2 }
+    expect(target.new.foo).to_not eq(4)
+    expect(target.new.foo).to be_lambda
   end
 
   it 'defines equality in terms of keyword names and values' do
@@ -39,8 +50,15 @@ RSpec.describe Portrayal do
     expect(object1).to_not eq(object3)
   end
 
-  it 'defines equality in terms of default values' do
+  it 'defines equality in terms of default values when default is lambda' do
     target.keyword :foo, default: -> { 2 + 2 }
+    object1 = target.new
+    object2 = target.new
+    expect(object1).to eq(object2)
+  end
+
+  it 'defines equality in terms of default values when default is proc' do
+    target.keyword :foo, default: proc { 2 + 2 }
     object1 = target.new
     object2 = target.new
     expect(object1).to eq(object2)
@@ -85,7 +103,7 @@ RSpec.describe Portrayal do
 
   it 'allows nested classes to be used as default values' do
     target.keyword :nested_class,
-      default: -> { target::NestedClass.new(foo: 'hello') } do
+      default: proc { target::NestedClass.new(foo: 'hello') } do
       keyword :foo
     end
 

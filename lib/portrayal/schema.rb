@@ -26,11 +26,11 @@ module Portrayal
         if optional == NULL && default == NULL
           [false, nil]
         elsif optional != NULL && default == NULL
-          [optional, optional ? -> { nil } : nil]
+          [optional, optional ? [:return, nil] : nil]
         elsif optional == NULL && default != NULL
-          [true, default]
+          [true, [default_strategy(default), default]]
         else
-          [optional, optional ? default : nil]
+          [optional, optional ? [default_strategy(default), default] : nil]
         end
 
       @schema[name.to_sym] = { optional: optional, default: default }
@@ -40,8 +40,13 @@ module Portrayal
       string.to_s.gsub(/(?:^|_+)([^_])/) { $1.upcase }
     end
 
-    def call_default(name)
-      @schema[name][:default].call
+    def get_default(name)
+      action, value = @schema[name][:default]
+      action == :call ? value.call : value
+    end
+
+    def default_strategy(value)
+      (value.is_a?(Proc) && !value.lambda?) ? :call : :return
     end
 
     def definition_of_initialize
@@ -49,7 +54,7 @@ module Portrayal
         @schema
         .map { |name, config|
           if config[:optional]
-            "#{name}: self.class.portrayal.call_default(:#{name})"
+            "#{name}: self.class.portrayal.get_default(:#{name})"
           else
             "#{name}:"
           end

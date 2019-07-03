@@ -14,7 +14,7 @@ class Person < MySuperClass
 
   keyword :name
   keyword :age, optional: true
-  keyword :favorite_fruit, default: -> { 'feijoa' }
+  keyword :favorite_fruit, default: 'feijoa'
 
   keyword :address do
     keyword :street
@@ -41,7 +41,7 @@ The code above produces almost exactly the following ruby. There's a lot of boil
 class Person < MySuperClass
   attr_reader :name, :age, :favorite_fruit, :address
 
-  def initialize(name:, age: nil, favorite_fruit: -> { 'feijoa' }.call, address:)
+  def initialize(name:, age: nil, favorite_fruit: 'feijoa', address:)
     @name = name
     @age = age
     @favorite_fruit = favorite_fruit
@@ -123,6 +123,21 @@ Possible use cases for these objects include, but are not limited to:
 - Objects serializable for 3rd party APIs
 - Objects serializable for React components
 
+### Defaults
+
+When specifying default, there's a difference between procs and lambda.
+
+```ruby
+keyword :foo, default: proc { 2 + 2 } # => Will call this proc and return 4
+keyword :foo, default: -> { 2 + 2 }   # => Will return this lambda itself
+```
+
+Any other value works as normal.
+
+```ruby
+keyword :foo, default: 4
+```
+
 ### Schema
 
 Every class that has at least one keyword defined in it automatically receives a class method called `portrayal`. This method is a schema of your object with some additional helpers.
@@ -149,7 +164,7 @@ Address.portrayal.attributes(address) # => {street: '34th st', city: 'NYC', post
 Get everything portrayal knows about your keywords in one hash.
 
 ```ruby
-Address.portrayal.schema # => {:street=>{:optional=>false, :default=>nil}, :city=>{:optional=>false, :default=>nil}, :postcode=>{:optional=>false, :default=>nil}, :country=>{:optional=>true, :default=>#<Proc>}}
+Address.portrayal.schema # => {:street=>{:optional=>false, :default=>nil}, :city=>{:optional=>false, :default=>nil}, :postcode=>{:optional=>false, :default=>nil}, :country=>{:optional=>true, :default=>[:return, nil]}}
 ```
 
 ## Philosophy
