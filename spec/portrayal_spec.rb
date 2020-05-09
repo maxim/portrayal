@@ -116,6 +116,23 @@ RSpec.describe Portrayal do
   end
 
   describe '.keyword' do
+    it 'defines a reader' do
+      target.keyword(:foo)
+      object = target.new(foo: 'foo')
+      expect(object.foo).to eq('foo')
+    end
+
+    it 'defines a protected writer' do
+      target.keyword(:foo)
+      object = target.new(foo: 'foo')
+      expect { object.foo = 'bar' }.to raise_error(NoMethodError, /protected/)
+
+      object2 = target.new(foo: 'foo')
+      def object2.update(other); other.foo = 'bar' end
+      object2.update(object)
+      expect(object.foo).to eq('bar')
+    end
+
     it 'inherits superclass of parent when defining nested classes' do
       child = Class.new(target) { extend Portrayal }
       child.keyword :nested_class do

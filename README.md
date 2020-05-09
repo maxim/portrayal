@@ -41,7 +41,8 @@ The code above produces almost exactly the following ruby. There's a lot of boil
 
 ```ruby
 class Person < MySuperClass
-  attr_reader :name, :age, :favorite_fruit, :address
+  attr_accessor :name, :age, :favorite_fruit, :address
+  protected :name=, :age=, :favorite_fruit=, :address=
 
   def initialize(name:, age: nil, favorite_fruit: 'feijoa', address:)
     @name = name
@@ -60,7 +61,8 @@ class Person < MySuperClass
   end
 
   class Address < MySuperClass
-    attr_reader :street, :city
+    attr_accessor :street, :city
+    protected :street=, :city=
 
     def initialize(street:, city:)
       @street = street

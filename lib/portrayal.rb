@@ -11,7 +11,8 @@ module Portrayal
       class_eval(portrayal.definition_of_equality)
     end
 
-    attr_reader name
+    attr_accessor name
+    protected "#{name}="
 
     portrayal.add_keyword(name, optional, default)
     class_eval(portrayal.definition_of_initialize)
