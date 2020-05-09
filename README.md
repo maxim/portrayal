@@ -1,3 +1,5 @@
+![RSpec](https://github.com/scottscheapflights/portrayal/workflows/RSpec/badge.svg?branch=master)
+
 # Portrayal
 
 Inspired by:
