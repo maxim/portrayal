@@ -5,6 +5,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 * No longer compare classes in `==`, use `eql?` for that. [commit](https://github.com/scottscheapflights/portrayal/commit/9c5a37e4fb91e35d23b22e208344452930452af7)
 * Define a protected writer for every keyword - useful when applying changes after `dup`/`clone`.
 * Add definition of `#hash` to fix hash equality. Now `hash[object]` will match if `object` is of the same class with the same keywords and values.
+* Make #freeze propagate to all keyword values.
 
 ## 0.2.0 - 2019-07-03
 

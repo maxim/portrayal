@@ -241,4 +241,22 @@ RSpec.describe Portrayal do
       expect(object1.hash).not_to eq(object2.hash)
     end
   end
+
+  describe '#freeze' do
+    it 'prevents modification of the frozen object' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      object.freeze
+
+      expect { object.instance_variable_set('@foo', 'bar') }
+        .to raise_error(FrozenError)
+    end
+
+    it 'prevents modifications of nested objects' do
+      target.keyword :array
+      object = target.new(array: %w[a])
+      object.freeze
+      expect { object.array << 'b' }.to raise_error(FrozenError)
+    end
+  end
 end

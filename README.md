@@ -8,7 +8,7 @@ Inspired by:
   - Piotr Solnica's [virtus](https://github.com/solnic/virtus)
   - Everything [Michel Martens](https://github.com/soveran)
 
-Portrayal is a minimalist gem (~90 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
+Portrayal is a minimalist gem (~100 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
 
 ```ruby
 class Person < MySuperClass
@@ -64,6 +64,14 @@ class Person < MySuperClass
     [ self.class, { name: name, age: age, favorite_fruit: favorite_fruit, address: address } ].hash
   end
 
+  def freeze
+    name.freeze
+    age.freeze
+    favorite_fruit.freeze
+    address.freeze
+    super
+  end
+
   class Address < MySuperClass
     attr_accessor :street, :city
     protected :street=, :city=
@@ -87,6 +95,12 @@ class Person < MySuperClass
 
     def hash
       [ self.class, { street: street, city: city } ].hash
+    end
+
+    def freeze
+      street.freeze
+      city.freeze
+      super
     end
   end
 end
