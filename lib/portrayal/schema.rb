@@ -82,13 +82,5 @@ module Portrayal
       end
       RUBY
     end
-
-    def equality_defined?
-      @equality_defined
-    end
-
-    def mark_equality_defined
-      @equality_defined = true
-    end
   end
 end
