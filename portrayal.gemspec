@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email   = ['madfancier@gmail.com']
 
   spec.summary     = 'A minimal builder for struct-like classes'
-  spec.description = 'Inspired by dry-initializer and virtus, portrayal is a minimalist gem (~120 loc, no dependencies) that takes a somewhat different approach to building struct-like classes. It steps away from types, coersion, and writer methods in favor of encouraging well-designed constructors. Read more in the Philosophy section of the README.'
+  spec.description = 'Inspired by dry-initializer and virtus, portrayal is a minimalist gem that takes a somewhat different approach to building struct-like classes. It steps away from types, coersion, and writer methods in favor of encouraging well-designed constructors. Read more in the Philosophy section of the README.'
   spec.homepage    = 'https://github.com/scottscheapflights/portrayal'
   spec.license     = 'Apache-2.0'
 
