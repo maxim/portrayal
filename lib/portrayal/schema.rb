@@ -72,13 +72,14 @@ module Portrayal
 
     def definition_of_equality
       <<-RUBY
-      def ==(other)
-        self.class == other.class &&
-          self.class.portrayal.attributes(self) ==
-          self.class.portrayal.attributes(other)
+      def eql?(other)
+        self.class == other.class && self == other
       end
 
-      alias eql? ==
+      def ==(other)
+        self.class.portrayal.attributes(self) ==
+          self.class.portrayal.attributes(other)
+      end
       RUBY
     end
 

@@ -1,5 +1,11 @@
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* No longer compare classes in `==`, use `eql?` for that.
+
 ## 0.2.0 - 2019-07-03
 
 ### Changed

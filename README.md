@@ -48,13 +48,14 @@ class Person < MySuperClass
     @address = address
   end
 
-  def ==(other)
-    self.class == other.class &&
-      { name: name, age: age, favorite_fruit: favorite_fruit, address: address } ==
-      { name: other.name, age: other.age, favorite_fruit: other.favorite_fruit, address: other.address }
+  def eql?(other)
+    self.class == other.class && self == other
   end
 
-  alias eql? ==
+  def ==(other)
+    { name: name, age: age, favorite_fruit: favorite_fruit, address: address } ==
+      { name: other.name, age: other.age, favorite_fruit: other.favorite_fruit, address: other.address }
+  end
 
   class Address < MySuperClass
     attr_reader :street, :city
@@ -68,12 +69,13 @@ class Person < MySuperClass
       "#{street}, #{city}"
     end
 
-    def ==(other)
-      self.class == other.class &&
-        { street: street, city: city } == { street: other.street, city: other.city }
+    def eql?(other)
+      self.class == other.class && self == other
     end
 
-    alias eql? ==
+    def ==(other)
+      { street: street, city: city } == { street: other.street, city: other.city }
+    end
   end
 end
 ```

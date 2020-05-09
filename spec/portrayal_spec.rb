@@ -5,6 +5,45 @@ RSpec.describe Portrayal do
     expect(Portrayal::VERSION).not_to be nil
   end
 
+  shared_examples 'equality based on keywords' do
+    it 'compares by keyword names and values' do
+      target.keyword :foo
+      object1 = target.new(foo: 'foo')
+      object2 = target.new(foo: 'foo')
+      object3 = target.new(foo: 'bar')
+
+      expect(object1.send(equality_method, object2)).to be true
+      expect(object1.send(equality_method, object3)).to be false
+    end
+
+    it 'compares by default lambda value' do
+      target.keyword :foo, default: -> { 2 + 2 }
+      object1 = target.new
+      object2 = target.new
+      expect(object1.send(equality_method, object2)).to be true
+    end
+
+    it 'compares by the result of a default proc' do
+      target.keyword :foo, default: proc { 2 + 2 }
+      object1 = target.new
+      object2 = target.new
+      expect(object1.send(equality_method, object2)).to be true
+    end
+
+    it 'propagates equality to nested classes' do
+      target.keyword :nested_class do
+        keyword :foo
+      end
+
+      object1 = target.new(nested_class: target::NestedClass.new(foo: 'hello'))
+      object2 = target.new(nested_class: target::NestedClass.new(foo: 'hello'))
+      object3 = target.new(nested_class: target::NestedClass.new(foo: 'hi'))
+
+      expect(object1.send(equality_method, object2)).to be true
+      expect(object1.send(equality_method, object3)).to be false
+    end
+  end
+
   describe '.new' do
     it 'requires non-optional keywords' do
       target.keyword :foo
@@ -106,41 +145,38 @@ RSpec.describe Portrayal do
   end
 
   describe '#==' do
-    it 'compares by keyword names and values' do
+    let(:equality_method) { :== }
+
+    it_behaves_like 'equality based on keywords'
+
+    it 'ignores class' do
       target.keyword :foo
+
+      target2 = Class.new { extend Portrayal }
+      target2.keyword :foo
+
       object1 = target.new(foo: 'foo')
-      object2 = target.new(foo: 'foo')
-      object3 = target.new(foo: 'bar')
+      object2 = target2.new(foo: 'foo')
 
-      expect(object1).to eq(object2)
-      expect(object1).to_not eq(object3)
+      expect(object1.send(equality_method, object2)).to be true
     end
+  end
 
-    it 'compares by default lambda value' do
-      target.keyword :foo, default: -> { 2 + 2 }
-      object1 = target.new
-      object2 = target.new
-      expect(object1).to eq(object2)
-    end
+  describe '#eql?' do
+    let(:equality_method) { :eql? }
 
-    it 'compares by the result of a default proc' do
-      target.keyword :foo, default: proc { 2 + 2 }
-      object1 = target.new
-      object2 = target.new
-      expect(object1).to eq(object2)
-    end
+    it_behaves_like 'equality based on keywords'
 
-    it 'propagates equality to nested classes' do
-      target.keyword :nested_class do
-        keyword :foo
-      end
+    it 'compares based on class' do
+      target.keyword :foo
 
-      object1 = target.new(nested_class: target::NestedClass.new(foo: 'hello'))
-      object2 = target.new(nested_class: target::NestedClass.new(foo: 'hello'))
-      object3 = target.new(nested_class: target::NestedClass.new(foo: 'hi'))
+      target2 = Class.new { extend Portrayal }
+      target2.keyword :foo
 
-      expect(object1).to eq(object2)
-      expect(object1).to_not eq(object3)
+      object1 = target.new(foo: 'foo')
+      object2 = target2.new(foo: 'foo')
+
+      expect(object1.send(equality_method, object2)).to be false
     end
   end
 end
