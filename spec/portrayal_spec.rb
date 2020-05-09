@@ -259,4 +259,82 @@ RSpec.describe Portrayal do
       expect { object.array << 'b' }.to raise_error(/frozen/)
     end
   end
+
+  describe '#dup' do
+    it 'copies the object' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      copy = object.dup
+      expect(copy.object_id).not_to eq(object.object_id)
+
+      copy.instance_variable_set('@foo', 'bar')
+      expect(object.foo).to eq('foo')
+      expect(copy.foo).to eq('bar')
+    end
+
+    it 'copies keyword values' do
+      target.keyword :array
+      object = target.new(array: ['a'])
+      copy = object.dup
+      object.array << 'b'
+      copy.array << 'c'
+      expect(object.array).to eq(%w[a b])
+      expect(copy.array).to eq(%w[a c])
+    end
+
+    it 'does not copy the frozen state of the object' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      object.freeze
+      copy = object.dup
+      expect(copy).not_to be_frozen
+    end
+
+    it 'does not copy the frozen state of keyword values' do
+      target.keyword :array
+      object = target.new(array: ['a'])
+      object.freeze
+      copy = object.dup
+      expect(copy.array).not_to be_frozen
+    end
+  end
+
+  describe '#clone' do
+    it 'copies the object' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      copy = object.clone
+      expect(copy.object_id).not_to eq(object.object_id)
+
+      copy.instance_variable_set('@foo', 'bar')
+      expect(object.foo).to eq('foo')
+      expect(copy.foo).to eq('bar')
+    end
+
+    it 'copies keyword values' do
+      target.keyword :array
+      object = target.new(array: ['a'])
+      copy = object.clone
+      object.array << 'b'
+      copy.array << 'c'
+      expect(object.array).to eq(%w[a b])
+      expect(copy.array).to eq(%w[a c])
+    end
+
+    it 'copies the frozen state of the object' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      object.freeze
+      copy = object.clone
+      expect(copy).to be_frozen
+    end
+
+    it 'copies the frozen state of keyword values' do
+      target.keyword :array
+      object = target.new(array: ['a'])
+      object.freeze
+      copy = object.clone
+      expect(copy.array).to be_frozen
+    end
+  end
 end

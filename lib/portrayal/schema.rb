@@ -54,14 +54,28 @@ module Portrayal
       def eql?(other); self.class == other.class && self == other end
       def hash; [self.class, self.class.portrayal.attributes(self)].hash end
 
+      def ==(other)
+        self.class.portrayal.attributes(self) ==
+          self.class.portrayal.attributes(other)
+      end
+
       def freeze
         self.class.portrayal.attributes(self).values.each(&:freeze)
         super
       end
 
-      def ==(other)
-        self.class.portrayal.attributes(self) ==
-          self.class.portrayal.attributes(other)
+      def initialize_dup(source)
+        self.class.portrayal.attributes(source).each do |key, value|
+          instance_variable_set('@' + key.to_s, value.dup)
+        end
+        super
+      end
+
+      def initialize_clone(source)
+        self.class.portrayal.attributes(source).each do |key, value|
+          instance_variable_set('@' + key.to_s, value.clone)
+        end
+        super
       end
       RUBY
     end
