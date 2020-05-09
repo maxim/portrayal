@@ -5,6 +5,23 @@ RSpec.describe Portrayal do
     expect(Portrayal::VERSION).not_to be nil
   end
 
+  it 'matches on class and keywords in hash equality' do
+    target.keyword :foo
+
+    target2 = Class.new { extend Portrayal }
+    target2.keyword :foo
+
+    object1 = target.new(foo: 'foo')
+    object2 = target2.new(foo: 'foo')
+    object3 = target.new(foo: 'foo')
+
+    hash = { object1 => '1', object2 => '2' }
+
+    expect(hash[object1]).to eq('1')
+    expect(hash[object2]).to eq('2')
+    expect(hash[object3]).to eq('1')
+  end
+
   shared_examples 'equality based on keywords' do
     it 'compares by keyword names and values' do
       target.keyword :foo
@@ -195,8 +212,17 @@ RSpec.describe Portrayal do
 
       expect(object1.send(equality_method, object2)).to be false
     end
+  end
 
-    it 'results in expected hash behavior' do
+  describe '#hash' do
+    it 'is the same for objects of the same class and keywords' do
+      target.keyword :foo
+      object1 = target.new(foo: 'foo')
+      object2 = target.new(foo: 'foo')
+      expect(object1.hash).to eq(object2.hash)
+    end
+
+    it 'is different for objects of different class regardless of keywords' do
       target.keyword :foo
 
       target2 = Class.new { extend Portrayal }
@@ -204,13 +230,15 @@ RSpec.describe Portrayal do
 
       object1 = target.new(foo: 'foo')
       object2 = target2.new(foo: 'foo')
-      object3 = target.new(foo: 'foo')
 
-      hash = { object1 => '1', object2 => '2' }
+      expect(object1.hash).not_to eq(object2.hash)
+    end
 
-      expect(hash[object1]).to eq('1')
-      expect(hash[object2]).to eq('2')
-      expect(hash[object3]).to eq('1')
+    it 'is different for objects with different keyword values' do
+      target.keyword :foo
+      object1 = target.new(foo: 'foo')
+      object2 = target.new(foo: 'bar')
+      expect(object1.hash).not_to eq(object2.hash)
     end
   end
 end
