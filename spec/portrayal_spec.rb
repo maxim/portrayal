@@ -195,5 +195,22 @@ RSpec.describe Portrayal do
 
       expect(object1.send(equality_method, object2)).to be false
     end
+
+    it 'results in expected hash behavior' do
+      target.keyword :foo
+
+      target2 = Class.new { extend Portrayal }
+      target2.keyword :foo
+
+      object1 = target.new(foo: 'foo')
+      object2 = target2.new(foo: 'foo')
+      object3 = target.new(foo: 'foo')
+
+      hash = { object1 => '1', object2 => '2' }
+
+      expect(hash[object1]).to eq('1')
+      expect(hash[object2]).to eq('2')
+      expect(hash[object3]).to eq('1')
+    end
   end
 end

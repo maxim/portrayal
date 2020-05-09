@@ -60,6 +60,10 @@ class Person < MySuperClass
       { name: other.name, age: other.age, favorite_fruit: other.favorite_fruit, address: other.address }
   end
 
+  def hash
+    [ self.class, { name: name, age: age, favorite_fruit: favorite_fruit, address: address } ].hash
+  end
+
   class Address < MySuperClass
     attr_accessor :street, :city
     protected :street=, :city=
@@ -79,6 +83,10 @@ class Person < MySuperClass
 
     def ==(other)
       { street: street, city: city } == { street: other.street, city: other.city }
+    end
+
+    def hash
+      [ self.class, { street: street, city: city } ].hash
     end
   end
 end

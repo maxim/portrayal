@@ -70,7 +70,7 @@ module Portrayal
       "def initialize(#{init_args}); #{init_assignments} end"
     end
 
-    def definition_of_equality
+    def definition_of_object_enhancements
       <<-RUBY
       def eql?(other)
         self.class == other.class && self == other
@@ -79,6 +79,10 @@ module Portrayal
       def ==(other)
         self.class.portrayal.attributes(self) ==
           self.class.portrayal.attributes(other)
+      end
+
+      def hash
+        [self.class, self.class.portrayal.attributes(self)].hash
       end
       RUBY
     end

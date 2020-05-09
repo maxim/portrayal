@@ -8,7 +8,7 @@ module Portrayal
     unless respond_to?(:portrayal)
       class << self; attr_reader :portrayal end
       @portrayal = Schema.new
-      class_eval(portrayal.definition_of_equality)
+      class_eval(portrayal.definition_of_object_enhancements)
     end
 
     attr_accessor name
