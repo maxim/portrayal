@@ -249,14 +249,14 @@ RSpec.describe Portrayal do
       object.freeze
 
       expect { object.instance_variable_set('@foo', 'bar') }
-        .to raise_error(FrozenError)
+        .to raise_error(/frozen/)
     end
 
     it 'prevents modifications of nested objects' do
       target.keyword :array
       object = target.new(array: %w[a])
       object.freeze
-      expect { object.array << 'b' }.to raise_error(FrozenError)
+      expect { object.array << 'b' }.to raise_error(/frozen/)
     end
   end
 end
