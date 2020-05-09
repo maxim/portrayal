@@ -7,30 +7,20 @@ module Portrayal
       @equality_defined = false
     end
 
-    def [](name)
-      @schema[name]
-    end
-
-    def keywords
-      @schema.keys
-    end
+    def keywords; @schema.keys end
+    def [](name); @schema[name] end
 
     def attributes(object)
-      Hash[
-        object.class.portrayal.keywords.map { |key| [key, object.send(key)] }
-      ]
+      Hash[object.class.portrayal.keywords.map { |k| [k, object.send(k)] }]
     end
 
     def add_keyword(name, optional, default)
       optional, default =
-        if optional == NULL && default == NULL
-          [false, nil]
-        elsif optional != NULL && default == NULL
-          [optional, optional ? [:return, nil] : nil]
-        elsif optional == NULL && default != NULL
-          [true, [default_strategy(default), default]]
-        else
-          [optional, optional ? [default_strategy(default), default] : nil]
+        case [optional == NULL, default == NULL]
+        when [true,  true];  [false, nil]
+        when [false, true];  [optional, optional ? [:return, nil] : nil]
+        when [true,  false]; [true, [default_strategy(default), default]]
+        else; [optional, optional ? [default_strategy(default), default] : nil]
         end
 
       @schema[name.to_sym] = { optional: optional, default: default }
@@ -50,39 +40,23 @@ module Portrayal
     end
 
     def definition_of_initialize
-      init_args =
-        @schema
-        .map { |name, config|
-          if config[:optional]
-            "#{name}: self.class.portrayal.get_default(:#{name})"
-          else
-            "#{name}:"
-          end
-        }
-        .join(',')
+      init_args = @schema.map { |name, config|
+        config[:optional] ?
+          "#{name}: self.class.portrayal.get_default(:#{name})" : "#{name}:"
+      }.join(',')
 
-      init_assignments =
-        @schema
-        .keys
-        .map { |name| "@#{name} = #{name}" }
-        .join('; ')
-
-      "def initialize(#{init_args}); #{init_assignments} end"
+      init_assigns = @schema.keys.map { |name| "@#{name} = #{name}" }.join('; ')
+      "def initialize(#{init_args}); #{init_assigns} end"
     end
 
     def definition_of_object_enhancements
       <<-RUBY
-      def eql?(other)
-        self.class == other.class && self == other
-      end
+      def eql?(other); self.class == other.class && self == other end
+      def hash; [self.class, self.class.portrayal.attributes(self)].hash end
 
       def ==(other)
         self.class.portrayal.attributes(self) ==
           self.class.portrayal.attributes(other)
-      end
-
-      def hash
-        [self.class, self.class.portrayal.attributes(self)].hash
       end
       RUBY
     end
