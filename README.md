@@ -32,8 +32,12 @@ end
 When you call `keyword`:
 
 * It defines an `attr_reader`
+* It defines a protected `attr_writer`
 * It defines `initialize`
 * It defines `==` and `eql?`
+* It defines `#hash` for hash equality
+* It defines `#dup` and `#clone` that propagate to all keyword values
+* It defines `#freeze` that propagates to all keyword values
 * It creates a nested class when you supply a block
 * It inherits parent's superclass when creating a nested class
 
