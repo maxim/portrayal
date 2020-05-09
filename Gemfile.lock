@@ -31,7 +31,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 2.1)
   portrayal!
   pry (~> 0.13)
   rake (~> 13.0)
