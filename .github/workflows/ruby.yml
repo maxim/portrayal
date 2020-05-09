@@ -19,6 +19,6 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - run: bundle update --bundler
+      - run: gem install bundler
       - run: bundle install
       - run: bundle exec rake
