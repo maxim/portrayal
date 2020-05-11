@@ -6,7 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 * Fix the issue introduced in 0.3.0 where `==` and `eql?` were always treating rhs as another portrayal class.
 
-## 0.3.0 - 2020-05-09
+## 0.3.0 - 2020-05-09 (yanked)
 
 * No longer compare classes in `==`, use `eql?` for that. [[commit]](https://github.com/scottscheapflights/portrayal/commit/9c5a37e4fb91e35d23b22e208344452930452af7)
 * Define a protected writer for every keyword - useful when applying changes after `dup`/`clone`. [[commit]](https://github.com/scottscheapflights/portrayal/commit/1c0fa6c6357a09760dae39165e864238d231a08e)
