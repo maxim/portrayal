@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.3.1 - 2020-05-11
+
 * Fix the issue introduced in 0.3.0 where `==` and `eql?` were always treating rhs as another portrayal class.
 
 ## 0.3.0 - 2020-05-09
