@@ -59,6 +59,12 @@ RSpec.describe Portrayal do
       expect(object1.send(equality_method, object2)).to be true
       expect(object1.send(equality_method, object3)).to be false
     end
+
+    it 'falls back on super when compared with non-portrayal classes' do
+      target.keyword :foo
+      object = target.new(foo: 'value')
+      expect(object.send(equality_method, :symbol)).to be false
+    end
   end
 
   describe '.new' do

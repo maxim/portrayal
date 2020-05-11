@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* Fix the issue introduced in 0.3.0 where `==` and `eql?` were always treating rhs as another portrayal class.
+
 ## 0.3.0 - 2020-05-09
 
 * No longer compare classes in `==`, use `eql?` for that. [[commit]](https://github.com/scottscheapflights/portrayal/commit/9c5a37e4fb91e35d23b22e208344452930452af7)

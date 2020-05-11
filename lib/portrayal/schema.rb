@@ -55,6 +55,8 @@ module Portrayal
       def hash; [self.class, self.class.portrayal.attributes(self)].hash end
 
       def ==(other)
+        return super unless other.class.is_a?(Portrayal)
+
         self.class.portrayal.attributes(self) ==
           self.class.portrayal.attributes(other)
       end
