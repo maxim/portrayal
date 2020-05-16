@@ -4,7 +4,6 @@ module Portrayal
 
     def initialize
       @schema = {}
-      @equality_defined = false
     end
 
     def keywords; @schema.keys end
