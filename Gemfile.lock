@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    portrayal (0.3.1)
+    portrayal (0.4.0)
 
 GEM
   remote: https://rubygems.org/

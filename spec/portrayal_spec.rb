@@ -343,4 +343,41 @@ RSpec.describe Portrayal do
       expect(copy.array).to be_frozen
     end
   end
+
+  describe 'subsclassing' do
+    it 'allows subclass to add more keywords' do
+      target.keyword :foo
+      target2 = Class.new(target)
+      target2.keyword :bar
+
+      object = target2.new(foo: 'foo', bar: 'bar')
+      expect(object.foo).to eq('foo')
+      expect(object.bar).to eq('bar')
+    end
+
+    it 'does not break subclassing when some defaults are procs and lambdas' do
+      target.keyword :foo, default: -> { 'foo' }
+      target.keyword :bar, default: proc { 'bar' }
+      target2 = Class.new(target)
+      target2.keyword :baz
+
+      object = target2.new(baz: 'baz')
+      expect(object.foo).to be_lambda
+      expect(object.bar).to eq('bar')
+    end
+
+    it 'creates copies of defaults upon subclassing' do
+      target.keyword :foo, default: []
+      target2 = Class.new(target)
+
+      object1 = target.new
+      object2 = target2.new
+
+      object1.foo << 1
+      object2.foo << 2
+
+      expect(object1.foo).to eq([1])
+      expect(object2.foo).to eq([2])
+    end
+  end
 end

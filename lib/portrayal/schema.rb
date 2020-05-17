@@ -2,12 +2,9 @@ module Portrayal
   class Schema
     attr_reader :schema
 
-    def initialize
-      @schema = {}
-    end
-
-    def keywords; @schema.keys end
-    def [](name); @schema[name] end
+    def initialize; @schema = {}  end
+    def keywords;   @schema.keys  end
+    def [](name);   @schema[name] end
 
     def attributes(object)
       Hash[object.class.portrayal.keywords.map { |k| [k, object.send(k)] }]
@@ -36,6 +33,15 @@ module Portrayal
 
     def default_strategy(value)
       (value.is_a?(Proc) && !value.lambda?) ? :call : :return
+    end
+
+    def initialize_dup(other)
+      super
+      @schema =
+        other.schema.map { |k, v|
+          default = v[:default] ? v[:default].map(&:dup) : v[:default]
+          [k, { optional: v[:optional], default: default }]
+        }.to_h
     end
 
     def definition_of_initialize

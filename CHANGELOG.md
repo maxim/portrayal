@@ -2,9 +2,11 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* Portrayal schema is deep-duped to subclasses
+
 ## 0.3.1 - 2020-05-11
 
-* Fix the issue introduced in 0.3.0 where `==` and `eql?` were always treating rhs as another portrayal class.
+* Fix the issue introduced in 0.3.0 where `==` and `eql?` were always treating rhs as another portrayal class. [[commit]](https://github.com/scottscheapflights/portrayal/commit/f6ec8f373c6582f7e8d8f872d289222e4a58f8f6)
 
 ## 0.3.0 - 2020-05-09 (yanked)
 

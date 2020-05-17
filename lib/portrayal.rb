@@ -6,7 +6,13 @@ module Portrayal
 
   def keyword(name, optional: NULL, default: NULL, &block)
     unless respond_to?(:portrayal)
-      class << self; attr_reader :portrayal end
+      class << self
+        attr_reader :portrayal
+        def inherited(base)
+          base.instance_variable_set('@portrayal', portrayal.dup)
+        end
+      end
+
       @portrayal = Schema.new
       class_eval(portrayal.definition_of_object_enhancements)
     end
