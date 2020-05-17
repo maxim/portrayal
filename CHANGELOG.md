@@ -2,7 +2,9 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-* Portrayal schema is deep-duped to subclasses
+## 0.4.0 - 2020-05-16
+
+* Portrayal schema is deep-duped to subclasses. [[commit]](https://github.com/scottscheapflights/portrayal/commit/f346483a379ce9fbdece72cde8b0844f2d22b1cd)
 
 ## 0.3.1 - 2020-05-11
 
