@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* Add option `define` for overriding nested class name.
+
 ## 0.4.0 - 2020-05-16
 
 * Portrayal schema is deep-duped to subclasses. [[commit]](https://github.com/scottscheapflights/portrayal/commit/f346483a379ce9fbdece72cde8b0844f2d22b1cd)

@@ -182,6 +182,14 @@ RSpec.describe Portrayal do
 
       expect(target::NestedClass.new.foo).to eq('hello')
     end
+
+    it 'allows overriding names of nested classes' do
+      target.keyword :things, define: 'Thing' do
+        keyword :foo, default: 'foo'
+      end
+
+      expect(target::Thing.new.foo).to eq('foo')
+    end
   end
 
   describe '#==' do

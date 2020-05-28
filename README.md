@@ -8,7 +8,7 @@ Inspired by:
   - Piotr Solnica's [virtus](https://github.com/solnic/virtus)
   - Everything [Michel Martens](https://github.com/soveran)
 
-Portrayal is a minimalist gem (~130 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
+Portrayal is a minimalist gem (~120 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
 
 ```ruby
 class Person < MySuperClass
@@ -197,6 +197,36 @@ Any other value works as normal.
 ```ruby
 keyword :foo, default: 4
 ```
+
+### Nested Classes
+
+When you pass a block to a keyword, it creates a nested class named after camelized keyword name.
+
+```ruby
+class Person
+  extend Portrayal
+
+  keyword :address do
+    keyword :street
+  end
+end
+```
+
+The above block created class `Person::Address`.
+
+If you want to change the name of the created class, use the option `define`.
+
+```ruby
+class Person
+  extend Portrayal
+
+  keyword :visited_countries, define: 'Country' do
+    keyword :name
+  end
+end
+```
+
+This defines `Person::Country`, while the accessor remains `visited_countries`.
 
 ### Schema
 

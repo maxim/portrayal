@@ -4,7 +4,7 @@ require 'portrayal/schema'
 module Portrayal
   NULL = :_portrayal_value_not_set
 
-  def keyword(name, optional: NULL, default: NULL, &block)
+  def keyword(name, optional: NULL, default: NULL, define: nil, &block)
     unless respond_to?(:portrayal)
       class << self
         attr_reader :portrayal
@@ -24,9 +24,8 @@ module Portrayal
     class_eval(portrayal.definition_of_initialize)
 
     if block_given?
-      keyword_class = Class.new(superclass) { extend Portrayal }
-      keyword_class.class_eval(&block)
-      const_set(portrayal.camelcase(name), keyword_class)
+      kw_class = Class.new(superclass) { extend Portrayal }
+      const_set(define || portrayal.camelize(name), kw_class).class_eval(&block)
     end
   end
 end

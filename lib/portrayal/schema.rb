@@ -10,6 +10,8 @@ module Portrayal
       Hash[object.class.portrayal.keywords.map { |k| [k, object.send(k)] }]
     end
 
+    def camelize(string); string.to_s.gsub(/(?:^|_+)([^_])/) { $1.upcase } end
+
     def add_keyword(name, optional, default)
       optional, default =
         case [optional == NULL, default == NULL]
@@ -20,10 +22,6 @@ module Portrayal
         end
 
       @schema[name.to_sym] = { optional: optional, default: default }
-    end
-
-    def camelcase(string)
-      string.to_s.gsub(/(?:^|_+)([^_])/) { $1.upcase }
     end
 
     def get_default(name)
