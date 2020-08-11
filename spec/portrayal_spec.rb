@@ -190,6 +190,11 @@ RSpec.describe Portrayal do
 
       expect(target::Thing.new.foo).to eq('foo')
     end
+
+    it 'returns name of the defined reader' do
+      value = target.keyword :foo
+      expect(value).to eq(:foo)
+    end
   end
 
   describe '#==' do

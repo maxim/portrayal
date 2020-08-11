@@ -27,5 +27,7 @@ module Portrayal
       kw_class = Class.new(superclass) { extend Portrayal }
       const_set(define || portrayal.camelize(name), kw_class).class_eval(&block)
     end
+
+    name
   end
 end

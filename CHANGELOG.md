@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* Return keyword name from `keyword`, allowing usage such as `private keyword :foo`.
+
 ## 0.5.0 - 2020-05-28
 
 * Add option `define` for overriding nested class name. [[commit]](https://github.com/scottscheapflights/portrayal/commit/665ad297fb71fcdf5f641c672a457ccbe29e4a49)
