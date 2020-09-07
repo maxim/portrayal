@@ -1,6 +1,4 @@
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'portrayal/version'
+require_relative 'lib/portrayal/version'
 
 Gem::Specification.new do |spec|
   spec.name    = 'portrayal'
@@ -13,6 +11,11 @@ Gem::Specification.new do |spec|
   spec.homepage    = 'https://github.com/scottscheapflights/portrayal'
   spec.license     = 'Apache-2.0'
 
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['source_code_uri'] = spec.homepage
+  spec.metadata['changelog_uri'] = 'https://github.com/scottscheapflights/portrayal/blob/master/CHANGELOG.md'
+
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
   spec.files = Dir.chdir(File.expand_path('..', __FILE__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^spec/}) }
   end
