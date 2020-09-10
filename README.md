@@ -1,4 +1,4 @@
-![RSpec](https://github.com/scottscheapflights/portrayal/workflows/RSpec/badge.svg?branch=master)
+![RSpec](https://github.com/scottscheapflights/portrayal/workflows/RSpec/badge.svg)
 
 # Portrayal
 
@@ -360,4 +360,4 @@ The gem is available as open source under the terms of the [Apache License Versi
 
 ## Code of Conduct
 
-Everyone interacting in the Portrayal project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/scottscheapflights/portrayal/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Portrayal project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/scottscheapflights/portrayal/blob/main/CODE_OF_CONDUCT.md).
