@@ -91,6 +91,34 @@ RSpec.describe Portrayal do
       expect(target.new.foo).to eq(4)
     end
 
+    it 'provides access to peer keywords when executing proc defaults' do
+      target.keyword :foo
+      target.keyword :bar, default: proc { "#{foo} world" }
+      expect(target.new(foo: 'hello').bar).to eq('hello world')
+    end
+
+    it 'provides access to peer defaults when executing proc defaults' do
+      target.keyword :foo, default: proc { 2 + 2 }
+      target.keyword :bar, default: proc { foo * 2 }
+      expect(target.new.bar).to eq(8)
+    end
+
+    it 'provides access to instance methods when executing proc defaults' do
+      TEST_CLASS__ = target
+      class TEST_CLASS__
+        keyword :foo, default: proc { hello_world }
+
+        private
+
+        def hello_world
+          'Hello, World!'
+        end
+      end
+
+      expect(target.new.foo).to eq('Hello, World!')
+      Object.send :remove_const, :TEST_CLASS__
+    end
+
     it 'sets lambda defaults without calling them' do
       target.keyword :foo, default: -> { 2 + 2 }
       expect(target.new.foo).to_not eq(4)

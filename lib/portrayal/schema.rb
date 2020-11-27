@@ -59,8 +59,8 @@ module Portrayal
       }.join(', ')
 
       init_assigns = @schema.keys.map { |name|
-        "@#{name} = #{name}.is_a?(Portrayal::Default) ? " \
-          "(#{name}.call? ? #{name}.value.call : #{name}.value) : " \
+        "@#{name} = #{name}.is_a?(::Portrayal::Default) ? " \
+          "(#{name}.call? ? instance_exec(&#{name}.value) : #{name}.value) : " \
           "#{name}"
       }.join('; ')
 
