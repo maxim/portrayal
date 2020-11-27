@@ -4,7 +4,7 @@ require 'portrayal/schema'
 module Portrayal
   NULL = :_portrayal_value_not_set
 
-  def keyword(name, optional: NULL, default: NULL, define: nil, &block)
+  def keyword(name, default: NULL, define: nil, &block)
     unless respond_to?(:portrayal)
       class << self
         attr_reader :portrayal
@@ -14,13 +14,13 @@ module Portrayal
       end
 
       @portrayal = Schema.new
-      class_eval(portrayal.definition_of_object_enhancements)
+      class_eval(Schema::DEFINITION_OF_OBJECT_ENHANCEMENTS)
     end
 
     attr_accessor name
     protected "#{name}="
 
-    portrayal.add_keyword(name, optional, default)
+    portrayal.add_keyword(name, default)
     class_eval(portrayal.definition_of_initialize)
 
     if block_given?

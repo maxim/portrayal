@@ -68,7 +68,7 @@ RSpec.describe Portrayal do
   end
 
   describe '.new' do
-    it 'requires non-optional keywords' do
+    it 'requires keywords without defaults' do
       target.keyword :foo
       expect { target.new }.to raise_error(ArgumentError, /foo/)
       expect { target.new(foo: 'hi') }.to_not raise_error
@@ -80,16 +80,10 @@ RSpec.describe Portrayal do
       expect(target.new.two_plus_two).to eq(4)
     end
 
-    it 'does not require an optional keyword' do
-      target.keyword :foo, optional: true
+    it 'does not require a keyword with nil default' do
+      target.keyword :foo, default: nil
       expect { target.new }.to_not raise_error
       expect(target.new.foo).to be_nil
-    end
-
-    it 'does not require an optional keyword with a default' do
-      target.keyword :foo, optional: true, default: proc { 2 + 2 }
-      expect { target.new }.to_not raise_error
-      expect(target.new.foo).to eq(4)
     end
 
     it 'calls proc defaults' do
@@ -112,8 +106,7 @@ RSpec.describe Portrayal do
     it 'is there if a keyword has been declared' do
       target.keyword :foo
       expect(target.portrayal.keywords).to eq([:foo])
-      expect(target.portrayal[:foo][:optional]).to eq(false)
-      expect(target.portrayal[:foo][:default]).to be_nil
+      expect(target.portrayal[:foo]).to be_nil
     end
 
     it 'is there in nested classes with keywords' do
@@ -167,12 +160,15 @@ RSpec.describe Portrayal do
     end
 
     it 'allows nested classes to be used as default values' do
-      target.keyword :nested_class,
-        default: proc { target::NestedClass.new(foo: 'hello') } do
-        keyword :foo
+      TEST_CLASS__ = target
+      class TEST_CLASS__
+        keyword :nested, default: proc { Nested.new(foo: 'hello') } do
+          keyword :foo
+        end
       end
 
-      expect(target.new.nested_class.foo).to eq('hello')
+      expect(TEST_CLASS__.new.nested.foo).to eq('hello')
+      Object.send :remove_const, :TEST_CLASS__
     end
 
     it 'allows defining methods in nested classes' do

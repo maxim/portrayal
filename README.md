@@ -15,7 +15,7 @@ class Person < MySuperClass
   extend Portrayal
 
   keyword :name
-  keyword :age, optional: true
+  keyword :age, default: nil
   keyword :favorite_fruit, default: 'feijoa'
 
   keyword :address do
@@ -172,7 +172,7 @@ class Address < ApplicationStruct
   keyword :street
   keyword :city
   keyword :postcode
-  keyword :country, optional: true
+  keyword :country, default: nil
 end
 ```
 
@@ -254,7 +254,7 @@ Address.portrayal.attributes(address) # => {street: '34th st', city: 'NYC', post
 Get everything portrayal knows about your keywords in one hash.
 
 ```ruby
-Address.portrayal.schema # => {:street=>{:optional=>false, :default=>nil}, :city=>{:optional=>false, :default=>nil}, :postcode=>{:optional=>false, :default=>nil}, :country=>{:optional=>true, :default=>[:return, nil]}}
+Address.portrayal.schema # => {:street=>nil, :city=>nil, :postcode=>nil, :country=><Portrayal::Default @value=nil @callable=false>}
 ```
 
 ## Philosophy
@@ -288,7 +288,7 @@ class Address < ApplicationStruct
   keyword :street
   keyword :city
   keyword :postcode
-  keyword :country, optional: true
+  keyword :country, default: nil
 end
 ```
 
@@ -331,7 +331,7 @@ class Address < ApplicationStruct
   keyword :street
   keyword :city
   keyword :postcode
-  keyword :country, optional: true
+  keyword :country, default: nil
 end
 ```
 

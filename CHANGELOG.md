@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* **Breaking change:** Remove `optional` setting. To update find all `optional: true` and change to `default: nil` instead.
+
 ## 0.6.0 - 2020-08-10
 
 * Return keyword name from `keyword`, allowing usage such as `private keyword :foo`. [[commit]](https://github.com/scottscheapflights/portrayal/commit/9e9db2cafc7eae14789c5b84f70efd18898ace76)
