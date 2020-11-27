@@ -198,6 +198,41 @@ Any other value works as normal.
 keyword :foo, default: 4
 ```
 
+#### Default procs
+
+Default procs are executed as though they were called in your class's `initialize`, so they have access to other keywords and instance methods.
+
+```ruby
+keyword :name
+keyword :greeting, default: proc { "Hello, #{name}" }
+```
+
+Defaults can also use results of other defaults.
+
+```ruby
+keyword :four,  default: proc { 2 + 2 }
+keyword :eight, default: proc { four * 2 }
+```
+
+Or instance methods of the class.
+
+```ruby
+keyword :id, default: proc { generate_id }
+
+private
+
+def generate_id
+  SecureRandom.alphanumeric
+end
+```
+
+Note: The order in which you declare keywords matters when specifying defaults that depend on other keywords. This will not have the desired effect:
+
+```ruby
+keyword :greeting, default: proc { "Hello, #{name}" }
+keyword :name
+```
+
 ### Nested Classes
 
 When you pass a block to a keyword, it creates a nested class named after camelized keyword name.
