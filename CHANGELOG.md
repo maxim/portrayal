@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.7.0 - 2020-12-13
+
 * **Breaking change:** Remove `optional` setting. To update find all `optional: true` and change to `default: nil` instead.
 
 * **Breaking change:** Move `self` of default procs to `initialize` context. Before this change, default procs used to be executed naively in class context. Now they can access other keyword readers and instance methods since their `self` is now coming from `initialize`. To update, look through your default procs and replace any reference to current class's methods such as `method_name` with `self.class.method_name`.
