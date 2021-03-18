@@ -263,6 +263,50 @@ end
 
 This defines `Person::Country`, while the accessor remains `visited_countries`.
 
+### Subclassing
+
+Portrayal supports subclassing.
+
+```ruby
+class Person
+  extend Portrayal
+  
+  class << self
+    def from_contact(contact)
+      new name:    contact.full_name,
+          address: contact.address.to_s,
+          email:   contact.email
+    end
+  end
+  
+  keyword :name
+  keyword :address
+  keyword :email, default: nil
+end
+```
+
+```ruby
+class Employee < Person
+  keyword :employee_id
+  keyword :email, default: proc { "#{employee_id}@example.com" }
+end
+```
+
+Now when you call `Employee.new` it will accept keywords of both superclass and subclass. You can also see how `email`'s default is overridden in the subclass.
+
+However, if you try calling `Employee.from_contact(contact)` it will error out, because that constructor doesn't set an `employee_id` required in the subclass. You can remedy that with a small change.
+
+```ruby
+    def from_contact(contact, **kwargs)
+      new name:    contact.full_name,
+          address: contact.address.to_s,
+          email:   contact.email,
+          **kwargs
+    end
+```
+
+If you add `**kwargs` to `Person.from_contact` and pass them through to new, then you are now able to call `Employee.from_contact(contact, employee_id: 'some_id')`
+
 ### Schema
 
 Every class that has at least one keyword defined in it automatically receives a class method called `portrayal`. This method is a schema of your object with some additional helpers.
