@@ -219,6 +219,13 @@ RSpec.describe Portrayal do
       value = target.keyword :foo
       expect(value).to eq(:foo)
     end
+
+    it 're-appends keyword to the end of schema on every redeclaration' do
+      target.keyword :foo
+      target.keyword :bar
+      target.keyword :foo, default: proc { bar }
+      expect(target.new(bar: 'bar').foo).to eq('bar')
+    end
   end
 
   describe '#==' do
