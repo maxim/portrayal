@@ -2,6 +2,25 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* Fix default procs' behavior when overriding keywords in subclasses. Portrayal relies on an ordered ruby hash to initialize keywords in the correct order. However, if overriding the same keyword in a subclass (by declaring it again), it didn't move keyword to the bottom of the hash, so this would happen:
+
+    ```ruby
+    class Person
+      extend Portrayal
+      keyword :email, default: nil
+    end
+
+    class Employee < Person
+      keyword :employee_id
+      keyword :email, default: proc { "#{employee_id}@example.com" }
+    end
+
+    employee = Employee.new(employee_id: '1234')
+    employee.email # => "@example.com"
+    ```
+
+    The email is broken because it relies on having employee_id declared before email, but email was already declared first in the superclass. This change fixes situations like this by re-adding the keyword to the bottom of the hash on every re-declaration.
+
 ## 0.7.0 - 2020-12-13
 
 * **Breaking change:** Remove `optional` setting. To update find all `optional: true` and change to `default: nil` instead.

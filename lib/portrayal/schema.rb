@@ -46,7 +46,9 @@ module Portrayal
     def camelize(string); string.to_s.gsub(/(?:^|_+)([^_])/) { $1.upcase } end
 
     def add_keyword(name, default)
-      @schema[name.to_sym] = default.equal?(NULL) ? nil : Default.new(default)
+      name = name.to_sym
+      @schema.delete(name) # Forcing keyword to be added at the end of the hash.
+      @schema[name] = default.equal?(NULL) ? nil : Default.new(default)
     end
 
     def initialize_dup(other)
