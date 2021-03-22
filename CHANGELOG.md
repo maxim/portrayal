@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.7.1 - 2021-03-22
+
 * Fix default procs' behavior when overriding keywords in subclasses. Portrayal relies on an ordered ruby hash to initialize keywords in the correct order. However, if overriding the same keyword in a subclass (by declaring it again), it didn't move keyword to the bottom of the hash, so this would happen:
 
     ```ruby
