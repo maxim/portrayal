@@ -388,6 +388,47 @@ RSpec.describe Portrayal do
     end
   end
 
+  describe '#deconstruct' do
+    it 'returns array of keyword values' do
+      target.keyword :foo
+      target.keyword :bar
+      object = target.new(foo: 'foo', bar: 'bar')
+      expect(object.deconstruct).to eq(%w[foo bar])
+    end
+
+    it 'returns values in the correct order in a subclass' do
+      target.keyword :foo
+      target.keyword :bar
+      target2 = Class.new(target)
+      target2.keyword :baz
+      object = target2.new(baz: 'baz', foo: 'foo', bar: 'bar')
+      expect(object.deconstruct).to eq(%w[foo bar baz])
+    end
+  end
+
+  describe '#deconstruct_keys' do
+    it 'returns hash of key/value pairs' do
+      target.keyword :foo
+      target.keyword :bar
+      object = target.new(foo: 'foo', bar: 'bar')
+      expect(object.deconstruct_keys(nil)).to eq({foo: 'foo', bar: 'bar'})
+    end
+
+    it 'returns filtered hash of key/value pairs' do
+      target.keyword :foo
+      target.keyword :bar
+      object = target.new(foo: 'foo', bar: 'bar')
+      expect(object.deconstruct_keys([:bar])).to eq(bar: 'bar')
+    end
+
+    it 'does not error-out on non-recognized keys' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      expect { object.deconstruct_keys([:x]) }.to_not raise_error
+      expect(object.deconstruct_keys([:x])).to eq({})
+    end
+  end
+
   describe 'subsclassing' do
     it 'allows subclass to add more keywords' do
       target.keyword :foo
