@@ -8,7 +8,7 @@ Inspired by:
   - Piotr Solnica's [virtus](https://github.com/solnic/virtus)
   - Everything [Michel Martens](https://github.com/soveran)
 
-Portrayal is a minimalist gem (~120 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
+Portrayal is a minimalist gem (~130 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
 
 ```ruby
 class Person < MySuperClass
@@ -306,6 +306,35 @@ However, if you try calling `Employee.from_contact(contact)` it will error out, 
 ```
 
 If you add `**kwargs` to `Person.from_contact` and pass them through to new, then you are now able to call `Employee.from_contact(contact, employee_id: 'some_id')`
+
+### Pattern Matching
+
+If your Ruby has pattern matching, you can pattern match portrayal objects. Both array- and hash-style matching are supported.
+
+```ruby
+class Point
+  extend Portrayal
+
+  keyword :x
+  keyword :y
+end
+
+point = Point.new(x: 5, y: 10)
+
+case point
+in 5, 10
+  'matched'
+else
+  'did not match'
+end # => "matched"
+
+case point
+in x:, y: 10
+  'matched'
+else
+  'did not match'
+end # => "matched"
+```
 
 ### Schema
 
