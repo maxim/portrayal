@@ -7,6 +7,13 @@ module Portrayal
     DEFINITION_OF_OBJECT_ENHANCEMENTS = <<~RUBY.freeze
       def eql?(other); self.class == other.class && self == other end
       def hash; [self.class, self.class.portrayal.attributes(self)].hash end
+      def deconstruct; self.class.portrayal.attributes(self).values end
+
+      def deconstruct_keys(keys)
+        keys ||= self.class.portrayal.keywords
+        keys &= self.class.portrayal.keywords
+        Hash[keys.map { |k| [k, send(k)] }]
+      end
 
       def ==(other)
         return super unless other.class.is_a?(Portrayal)
