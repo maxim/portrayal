@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+find lib -name '*.rb' | xargs wc -l
