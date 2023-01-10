@@ -3,8 +3,8 @@ require_relative 'lib/portrayal/version'
 Gem::Specification.new do |spec|
   spec.name    = 'portrayal'
   spec.version = Portrayal::VERSION
-  spec.authors = ['Maxim Chernyak']
-  spec.email   = ['madfancier@gmail.com']
+  spec.authors = ['Max Chernyak']
+  spec.email   = ['hello@max.engineer']
 
   spec.summary     = 'A minimal builder for struct-like classes'
   spec.description = 'Inspired by dry-initializer and virtus, portrayal is a minimalist gem that takes a somewhat different approach to building struct-like classes. It steps away from types, coersion, and writer methods in favor of encouraging well-designed constructors. Read more in the Philosophy section of the README.'
