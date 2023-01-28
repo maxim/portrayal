@@ -2,7 +2,9 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-* Add `#deconstruct` and `#deconstruct_keys` for pattern matching support.
+## 0.8.0 - 2023-01-27
+
+* Add pattern matching support (`#deconstruct` and `#deconstruct_keys`).
 
 ## 0.7.1 - 2021-03-22
 
