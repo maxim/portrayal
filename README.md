@@ -1,4 +1,4 @@
-![RSpec](https://github.com/maxim/portrayal/workflows/RSpec/badge.svg)
+[![Gem Version](https://badge.fury.io/rb/portrayal.svg)](https://badge.fury.io/rb/portrayal) ![RSpec](https://github.com/maxim/portrayal/workflows/RSpec/badge.svg)
 
 # Portrayal
 
