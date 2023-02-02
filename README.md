@@ -8,7 +8,7 @@ Inspired by:
   - Piotr Solnica's [virtus](https://github.com/solnic/virtus)
   - Everything [Michel Martens](https://github.com/soveran)
 
-Portrayal is a minimalist gem (~130 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
+Portrayal is a minimalist gem (~110 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
 
 ```ruby
 class Person < MySuperClass
@@ -336,9 +336,9 @@ else
 end # => "matched"
 ```
 
-### Schema
+### Introspection
 
-Every class that has at least one keyword defined in it automatically receives a class method called `portrayal`. This method is a schema of your object with some additional helpers.
+Every class that extends Portrayal receives a method called `portrayal`. This method is a schema of your object with some additional helpers.
 
 #### `portrayal.keywords`
 
@@ -445,10 +445,10 @@ end
 
 #### No Reinventing The Wheel
 
-Portrayal leans on Ruby to take care of enforcing required keyword arguments, and setting keyword argument defaults. It actually generates standard ruby keyword arguments for you behind the scenes. You can even see the code by checking `YourClass.portrayal.definition_of_initialize`.
+Portrayal leans on Ruby to take care of enforcing required keyword arguments, and setting keyword argument defaults. It actually generates standard ruby keyword arguments for you behind the scenes. You can see the code by checking `YourClass.portrayal.render_initialize`.
 
 ```irb
-Address.portrayal.definition_of_initialize
+Address.portrayal.render_initialize
 => "def initialize(street:,city:,postcode:,country: self.class.portrayal.call_default(:country)); @street = street; @city = city; @postcode = postcode; @country = country end"
 ```
 
