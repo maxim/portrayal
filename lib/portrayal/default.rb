@@ -1,5 +1,6 @@
 class Portrayal::Default
-  protected attr_reader :value
+  attr_reader :value
+  protected :value
 
   def initialize(value)
     @value = value
