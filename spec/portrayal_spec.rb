@@ -5,6 +5,10 @@ RSpec.describe Portrayal do
     expect(Portrayal::VERSION).not_to be nil
   end
 
+  it 'provides portrayal class method' do
+    expect(target).to respond_to(:portrayal)
+  end
+
   it 'matches on class and keywords in hash equality' do
     target.keyword :foo
 
@@ -126,40 +130,26 @@ RSpec.describe Portrayal do
     end
   end
 
-  describe '.portrayal' do
-    it 'is not there if a keyword has not been declared' do
-      expect(target).not_to respond_to(:portrayal)
-    end
-
-    it 'is there if a keyword has been declared' do
-      target.keyword :foo
-      expect(target.portrayal.keywords).to eq([:foo])
-      expect(target.portrayal[:foo]).to be_nil
-    end
-
-    it 'is there in nested classes with keywords' do
-      target.keyword :nested_class do
-        keyword :foo
-      end
-
-      expect { target::NestedClass }.to_not raise_error
-      expect(target::NestedClass.portrayal.keywords).to eq([:foo])
-    end
-
-    it 'is there in doubly nested classes with keywords' do
-      target.keyword :nested_class_1 do
-        keyword :nested_class_2 do
-          keyword :foo
-        end
-      end
-
-      expect { target::NestedClass1::NestedClass2 }.to_not raise_error
-      expect(target::NestedClass1::NestedClass2.portrayal.keywords)
-        .to eq([:foo])
-    end
-  end
-
   describe '.keyword' do
+    it 'includes extensions into ancestry once' do
+      expect(target.ancestors[1]).to_not be(Portrayal::Methods)
+      expect(target).to receive(:include).and_call_original
+      target.keyword(:foo)
+      expect(target.ancestors[1]).to be(Portrayal::Methods)
+      expect(target).to_not receive(:include)
+      target.keyword(:bar)
+    end
+
+    it 'adds keyword to keywords list' do
+      target.keyword(:foo)
+      expect(target.portrayal.keywords).to eq([:foo])
+    end
+
+    it 'adds keyword to keywords list' do
+      target.keyword(:foo)
+      expect(target.portrayal.keywords).to eq([:foo])
+    end
+
     it 'defines a reader' do
       target.keyword(:foo)
       object = target.new(foo: 'foo')
@@ -175,6 +165,27 @@ RSpec.describe Portrayal do
       def object2.update(other); other.foo = 'bar' end
       object2.update(object)
       expect(object.foo).to eq('bar')
+    end
+
+    it 'adds portrayal to nested class' do
+      target.keyword :nested_class do
+        keyword :foo
+      end
+
+      expect { target::NestedClass }.to_not raise_error
+      expect(target::NestedClass.portrayal.keywords).to eq([:foo])
+    end
+
+    it 'adds portrayal to doubly nested class' do
+      target.keyword :nested_class_1 do
+        keyword :nested_class_2 do
+          keyword :foo
+        end
+      end
+
+      expect { target::NestedClass1::NestedClass2 }.to_not raise_error
+      expect(target::NestedClass1::NestedClass2.portrayal.keywords)
+        .to eq([:foo])
     end
 
     it 'inherits superclass of parent when defining nested classes' do
@@ -196,6 +207,23 @@ RSpec.describe Portrayal do
       end
 
       expect(TEST_CLASS__.new.nested.foo).to eq('hello')
+      Object.send :remove_const, :TEST_CLASS__
+    end
+
+    it 'does not use wrong Default, Schema and NULL consts when they exist' do
+      TEST_CLASS__ = target
+      class TEST_CLASS__
+        class Default; end
+        class Schema; end
+        NULL = 'something'
+        keyword :foo, default: 'foo'
+        keyword :bar, default: nil
+        keyword :baz
+      end
+
+      expect(TEST_CLASS__.new(baz: 1).foo).to eq('foo')
+      expect(TEST_CLASS__.new(baz: 1).bar).to eq(nil)
+      expect(TEST_CLASS__.new(baz: 1).baz).to eq(1)
       Object.send :remove_const, :TEST_CLASS__
     end
 
@@ -426,6 +454,12 @@ RSpec.describe Portrayal do
       object = target.new(foo: 'foo')
       expect { object.deconstruct_keys([:x]) }.to_not raise_error
       expect(object.deconstruct_keys([:x])).to eq({})
+    end
+
+    it 'returns empty hash when empty array is given' do
+      target.keyword :foo
+      object = target.new(foo: 'foo')
+      expect(object.deconstruct_keys([])).to eq({})
     end
   end
 

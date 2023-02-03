@@ -1,13 +1,12 @@
-module Portrayal
-  class Default
-    attr_reader :value
+class Portrayal::Default
+  attr_reader :value
+  protected :value
 
-    def initialize(value)
-      @value = value
-      @callable = value.is_a?(Proc) && !value.lambda?
-    end
-
-    def call?; @callable end
-    def initialize_dup(src); super; @value = src.value.dup end
+  def initialize(value)
+    @value = value
+    @callable = value.is_a?(Proc) && !value.lambda?
   end
+
+  def get(obj); @callable ? obj.instance_exec(&value) : value end
+  def initialize_dup(src); @value = src.value.dup; super end
 end
