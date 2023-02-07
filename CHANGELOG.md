@@ -2,6 +2,10 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+* Object enhancements such as `eql?`, `==`, `freeze`, etc are now included as a module, rather than class_eval'ed into your object.
+* Class method `portrayal` now appears when you call `extend Portrayal`, and not after the first `keyword` declaration. (Instance methods are still added upon `keyword`.)
+* Internals have been refactored for neatness.
+
 ## 0.8.0 - 2023-01-27
 
 * Add pattern matching support (`#deconstruct` and `#deconstruct_keys`).
