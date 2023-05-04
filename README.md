@@ -38,6 +38,7 @@ When you call `keyword`:
 * It defines `#hash` for hash equality
 * It defines `#dup` and `#clone` that propagate to all keyword values
 * It defines `#freeze` that propagates to all keyword values
+* It defines `#deconstruct` and `#deconstruct_keys` for pattern matching
 * It creates a nested class when you supply a block
 * It inherits parent's superclass when creating a nested class
 
@@ -74,6 +75,14 @@ class Person < MySuperClass
     favorite_fruit.freeze
     address.freeze
     super
+  end
+
+  def deconstruct
+    [ name, age, favorite_fruit, address ]
+  end
+
+  def deconstruct_keys(*)
+    { name: name, age: age, favorite_fruit: favorite_fruit, address: address }
   end
 
   def initialize_dup(source)
@@ -121,6 +130,14 @@ class Person < MySuperClass
       street.freeze
       city.freeze
       super
+    end
+
+    def deconstruct
+      [ street, city ]
+    end
+
+    def deconstruct_keys(*)
+      { street: street, city: city }
     end
 
     def initialize_dup(source)
