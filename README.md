@@ -388,12 +388,14 @@ Portrayal steps back from things like type enforcement, coercion, and writer met
 
 #### Good Constructors
 
-The fact that we keep these portrayal structs read-only (nothing stops you from adding writers, but I will personally frown upon you), all of the responsibility of building them shifts into constructors. This is a good thing, because good constructors clearly define their dependencies, as well as giving us ample room for performing coercion.
+Since a portrayal object is read-only (nothing stops you from adding writers, but I will personally frown upon you), you must set all its values in a constructor. This is a good thing, because it lets us study, coerce, and validate all the passed-in arguments in one convenient place. We're assured that once instantiated, the object is valid. And of course we can have multiple constructors if needed. They serve as adapters for different kinds of input.
 
 ```ruby
 class Address < ApplicationStruct
   class << self
     def from_form(params)
+      raise ArgumentError, 'invalid postcode' unless postcode =~ /\A\d+\z/
+
       new \
         street:   params[:street].to_s,
         city:     params[:city].to_s,
@@ -417,16 +419,18 @@ class Address < ApplicationStruct
 end
 ```
 
-Good constructors can also depend on one another to successively break down dependnecies into essential parts. This is similar to how in functional languages one can use recursion and pattern matching.
+Good constructors can depend on one another to successively convert arguments into keywords. This is similar to how in functional languages one can use recursion and pattern matching.
 
 ```ruby
 class Email < ApplicationStruct
   class << self
+    # Extract parts of an email from JSON, and kick it over to from_parts.
     def from_publishing_service_json(json)
       subject, header, body, footer = *JSON.parse(json)
       from_parts(subject: subject, header: header, body: body, footer: footer)
     end
 
+    # Combine parts into the final keywords: subject and body.
     def from_parts(subject:, header:, body:, footer:)
       new(subject: subject, body: "#{header}#{body}#{footer}")
     end
@@ -460,13 +464,15 @@ class Address < ApplicationStruct
 end
 ```
 
+If a particular constructor doesn't belong on your object (i.e. a 3rd party module is responsible for parsing its own data and producing your object) — you don't need to have a special constructor. Remember that each portrayal object comes with `.new`, which accepts every keyword directly. Let the module do all the parsing on its side and call `.new` with final values.
+
 #### No Reinventing The Wheel
 
 Portrayal leans on Ruby to take care of enforcing required keyword arguments, and setting keyword argument defaults. It actually generates standard ruby keyword arguments for you behind the scenes. You can see the code by checking `YourClass.portrayal.render_initialize`.
 
 ```irb
 Address.portrayal.render_initialize
-=> "def initialize(street:,city:,postcode:,country: self.class.portrayal.call_default(:country)); @street = street; @city = city; @postcode = postcode; @country = country end"
+=> "def initialize(street:, city:, postcode:, country: self.class.portrayal[:country]); @street = street.is_a?(::Portrayal::Default) ? street.get(self) : street; @city = city.is_a?(::Portrayal::Default) ? city.get(self) : city; @postcode = postcode.is_a?(::Portrayal::Default) ? postcode.get(self) : postcode; @country = country.is_a?(::Portrayal::Default) ? country.get(self) : country; self.class.portrayal.enforce_contracts(self) end"
 ```
 
 ## Development
