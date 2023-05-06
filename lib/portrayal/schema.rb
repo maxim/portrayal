@@ -63,9 +63,9 @@ def deconstruct
   public_syms.map { |s| public_send(s) }
 end
 def deconstruct_keys(keys)
-  public_syms = [#{syms}].select {|s| self.class.public_method_defined?(s) }
-  keys = (Array === keys) ? (public_syms & keys) : public_syms
-  Hash[keys.map { |k| [k, public_send(k)] }]
+  filtered_keys = [#{syms}].select {|s| self.class.public_method_defined?(s) }
+  filtered_keys &= keys if Array === keys
+  Hash[filtered_keys.map { |k| [k, public_send(k)] }]
 end
     RUBY
   end

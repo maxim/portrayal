@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'portrayal'
+
+class Address
+  extend Portrayal
+
+  keyword :street
+  keyword :city
+  keyword :postcode
+  keyword :country, default: nil
+end
+
+puts Address.portrayal.render_methods
