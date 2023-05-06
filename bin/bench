@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'portrayal'
+require 'benchmark/ips'
+
+class Address1
+  extend Portrayal
+
+  keyword :street
+  keyword :city
+  keyword :postal_code
+
+  def ==(other)
+    self.class.portrayal.attributes(self) ==
+      other.class.portrayal.attributes(other)
+  end
+end
+
+class Address2
+  extend Portrayal
+
+  keyword :street
+  keyword :city
+  keyword :postal_code
+end
+
+Address2.portrayal.module.module_eval <<-RUBY
+  def ==(o)
+    street == o.street && city == o.city && postal_code == o.postal_code
+  end
+RUBY
+
+class Address3
+  extend Portrayal
+
+  keyword :street
+  keyword :city
+  keyword :postal_code
+
+  def ==(o)
+    { street: street, city: city, postal_code: postal_code } ==
+      { street: o.street, city: o.city, postal_code: o.postal_code }
+  end
+end
+
+a1 = Address1.new(street: 'street', city: 'city', postal_code: 123)
+a2 = Address2.new(street: 'street', city: 'city', postal_code: 123)
+a3 = Address3.new(street: 'street', city: 'city', postal_code: 123)
+
+
+Benchmark.ips do |x|
+  x.report("equality-via-hash-construction") {
+    a1 == a1
+  }
+
+  x.report("equality-via-boolean-expression") {
+    a2 == a2
+  }
+
+  x.report("equality-via-hash-literal") {
+    a3 == a3
+  }
+
+  x.compare!
+end
+
+Benchmark.ips do |x|
+  x.report("hash of literal Hash") {
+    { foo: 'foo', bar: 'bar', baz: 'baz' }.hash
+  }
+
+  x.report("hash of literal Array") {
+    [ [:foo, 'foo'], [:bar, 'bar'], [:baz, 'baz'] ].hash
+  }
+
+  x.compare!
+end

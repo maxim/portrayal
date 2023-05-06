@@ -1,6 +1,8 @@
 RSpec.describe Portrayal do
   let(:target) { Class.new { extend Portrayal } }
 
+  after { Object.send(:remove_const, :TEST_CLASS__) if defined?(TEST_CLASS__) }
+
   it 'has a version number' do
     expect(Portrayal::VERSION).not_to be nil
   end
@@ -69,6 +71,18 @@ RSpec.describe Portrayal do
       object = target.new(foo: 'value')
       expect(object.send(equality_method, :symbol)).to be false
     end
+
+    it 'compares based on class' do
+      target.keyword :foo
+
+      target2 = Class.new { extend Portrayal }
+      target2.keyword :foo
+
+      object1 = target.new(foo: 'foo')
+      object2 = target2.new(foo: 'foo')
+
+      expect(object1.send(equality_method, object2)).to be false
+    end
   end
 
   describe '.new' do
@@ -95,6 +109,11 @@ RSpec.describe Portrayal do
       expect(target.new.foo).to eq(4)
     end
 
+    it 'does not call passed-in procs' do
+      target.keyword :foo
+      expect(target.new(foo: proc { 2 + 2 }).foo).to_not eq(4)
+    end
+
     it 'provides access to peer keywords when executing proc defaults' do
       target.keyword :foo
       target.keyword :bar, default: proc { "#{foo} world" }
@@ -108,19 +127,12 @@ RSpec.describe Portrayal do
     end
 
     it 'provides access to instance methods when executing proc defaults' do
-      TEST_CLASS__ = target
-      class TEST_CLASS__
+      target.class_eval do
         keyword :foo, default: proc { hello_world }
-
-        private
-
-        def hello_world
-          'Hello, World!'
-        end
+        private def hello_world; 'Hello, World!' end
       end
 
       expect(target.new.foo).to eq('Hello, World!')
-      Object.send :remove_const, :TEST_CLASS__
     end
 
     it 'sets lambda defaults without calling them' do
@@ -131,13 +143,10 @@ RSpec.describe Portrayal do
   end
 
   describe '.keyword' do
-    it 'includes extensions into ancestry once' do
-      expect(target.ancestors[1]).to_not be(Portrayal::Methods)
-      expect(target).to receive(:include).and_call_original
-      target.keyword(:foo)
-      expect(target.ancestors[1]).to be(Portrayal::Methods)
-      expect(target).to_not receive(:include)
-      target.keyword(:bar)
+    it 'includes instance methods into ancestry' do
+      expect { target.keyword(:foo) }
+        .to change { target.ancestors[1] }
+        .from(Object).to(target.portrayal.module)
     end
 
     it 'adds keyword to keywords list' do
@@ -207,15 +216,13 @@ RSpec.describe Portrayal do
       end
 
       expect(TEST_CLASS__.new.nested.foo).to eq('hello')
-      Object.send :remove_const, :TEST_CLASS__
     end
 
     it 'does not use wrong Default, Schema and NULL consts when they exist' do
       TEST_CLASS__ = target
       class TEST_CLASS__
         class Default; end
-        class Schema; end
-        NULL = 'something'
+        class Schema; NULL = 'something' end
         keyword :foo, default: 'foo'
         keyword :bar, default: nil
         keyword :baz
@@ -224,7 +231,6 @@ RSpec.describe Portrayal do
       expect(TEST_CLASS__.new(baz: 1).foo).to eq('foo')
       expect(TEST_CLASS__.new(baz: 1).bar).to eq(nil)
       expect(TEST_CLASS__.new(baz: 1).baz).to eq(1)
-      Object.send :remove_const, :TEST_CLASS__
     end
 
     it 'allows defining methods in nested classes' do
@@ -254,42 +260,25 @@ RSpec.describe Portrayal do
       target.keyword :foo, default: proc { bar }
       expect(target.new(bar: 'bar').foo).to eq('bar')
     end
+
+    it 'adds keyword readers into a module' do
+      target.class_eval do
+        keyword :foo, default: 'from module'
+        def foo; super + ' with override' end
+      end
+
+      expect(target.new.foo).to eq('from module with override')
+    end
   end
 
   describe '#==' do
     let(:equality_method) { :== }
-
     it_behaves_like 'equality based on keywords'
-
-    it 'ignores class' do
-      target.keyword :foo
-
-      target2 = Class.new { extend Portrayal }
-      target2.keyword :foo
-
-      object1 = target.new(foo: 'foo')
-      object2 = target2.new(foo: 'foo')
-
-      expect(object1.send(equality_method, object2)).to be true
-    end
   end
 
   describe '#eql?' do
     let(:equality_method) { :eql? }
-
     it_behaves_like 'equality based on keywords'
-
-    it 'compares based on class' do
-      target.keyword :foo
-
-      target2 = Class.new { extend Portrayal }
-      target2.keyword :foo
-
-      object1 = target.new(foo: 'foo')
-      object2 = target2.new(foo: 'foo')
-
-      expect(object1.send(equality_method, object2)).to be false
-    end
   end
 
   describe '#hash' do
@@ -432,6 +421,24 @@ RSpec.describe Portrayal do
       object = target2.new(baz: 'baz', foo: 'foo', bar: 'bar')
       expect(object.deconstruct).to eq(%w[foo bar baz])
     end
+
+    it 'returns values by calling reader methods' do
+      target.keyword :num
+      object = target.new(num: 1)
+      def object.num; 2 end
+      expect(object.deconstruct).to eq([2])
+    end
+
+    it 'silently excludes private and protected readers' do
+      target.class_eval do
+        private   keyword :priv
+        protected keyword :prot
+        public    keyword :publ
+      end
+
+      object = target.new(priv: 'priv', prot: 'prot', publ: 'publ')
+      expect(object.deconstruct).to eq(['publ'])
+    end
   end
 
   describe '#deconstruct_keys' do
@@ -460,6 +467,26 @@ RSpec.describe Portrayal do
       target.keyword :foo
       object = target.new(foo: 'foo')
       expect(object.deconstruct_keys([])).to eq({})
+    end
+
+    it 'returns values by calling reader methods' do
+      target.keyword :num
+      object = target.new(num: 1)
+      def object.num; 2 end
+      expect(object.deconstruct_keys(nil)).to eq(num: 2)
+      expect(object.deconstruct_keys([:num])).to eq(num: 2)
+    end
+
+    it 'silently excludes private and protected readers' do
+      target.class_eval do
+        private   keyword :priv
+        protected keyword :prot
+        public    keyword :publ
+      end
+
+      object = target.new(priv: 'priv', prot: 'prot', publ: 'publ')
+      expect(object.deconstruct_keys([:priv, :prot, :publ])).to eq(publ: 'publ')
+      expect(object.deconstruct_keys(nil)).to eq(publ: 'publ')
     end
   end
 
@@ -497,6 +524,22 @@ RSpec.describe Portrayal do
 
       expect(object1.foo).to eq([1])
       expect(object2.foo).to eq([2])
+    end
+
+    it 'does not modify superclass module when adding keywords to subclass' do
+      target.keyword :foo
+      target2 = Class.new(target)
+      target2.keyword :bar
+      expect {
+        target.new(foo: 'foo', bar: 'bar')
+      }.to raise_error(ArgumentError, /bar/)
+    end
+
+    it 'duplicates module upon inheritance' do
+      target2 = Class.new(target)
+      target2.portrayal.module.module_eval("def hello; 'hello' end")
+      expect(target.new).to_not respond_to(:hello)
+      expect(target2.new.hello).to eq('hello')
     end
   end
 end

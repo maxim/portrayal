@@ -2,10 +2,15 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-* Object enhancements such as `eql?`, `==`, `freeze`, etc are now included as a module, rather than class_eval'ed into your object.
+* All attr_readers and other methods such as `eql?`, `==`, `freeze`, etc are now included as a module, rather than class_eval'ed into your object.
 * Class method `portrayal` now appears when you call `extend Portrayal`, and not after the first `keyword` declaration. (Instance methods are still added upon `keyword`.)
-* There is now `portrayal.empty?` that is true if no keywords have been declared.
-* Internals have been refactored for neatness.
+* No more `portrayal[]` (use `portrayal.schema[]` to access defaults).
+* Add `portrayal.module`, which is the module included in your struct.
+* Add `portrayal.render_methods`, which renders the code for the module.
+* Bring back class comparison to `==` (reverses a change in 0.3.0).
+* Methods `==`, `eql?`, `hash`, `initialize_dup`, `initialize_clone`, and `freeze` now operate on @instance @variables, not reader method return values.
+* Methods `deconstruct` and `deconstruct_keys` now quietly exclude private/protected keywords.
+* Rewrite internals to improve runtime performance. No longer depend on `portrayal.attributes`, instead generating ruby code that references keywords literally (much more efficient).
 
 ## 0.8.0 - 2023-01-27
 

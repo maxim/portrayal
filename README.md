@@ -365,7 +365,7 @@ Get all keyword names.
 Address.portrayal.keywords # => [:street, :city, :postcode, :country]
 ```
 
-#### `portrayal.attributes`
+#### `portrayal.attributes(object)`
 
 Get all names + values as a hash.
 
@@ -468,12 +468,40 @@ If a particular constructor doesn't belong on your object (i.e. a 3rd party modu
 
 #### No Reinventing The Wheel
 
-Portrayal leans on Ruby to take care of enforcing required keyword arguments, and setting keyword argument defaults. It actually generates standard ruby keyword arguments for you behind the scenes. You can see the code by checking `YourClass.portrayal.render_initialize`.
+Portrayal leans on Ruby's built-in features as much as possible. For initialize and default values it generates standard ruby keyword arguments. You can see all the code portrayal generates for your objects by running `YourClass.portrayal.render_methods`.
 
 ```irb
-Address.portrayal.render_initialize
-=> "def initialize(street:, city:, postcode:, country: self.class.portrayal[:country]); @street = street.is_a?(::Portrayal::Default) ? street.get(self) : street; @city = city.is_a?(::Portrayal::Default) ? city.get(self) : city; @postcode = postcode.is_a?(::Portrayal::Default) ? postcode.get(self) : postcode; @country = country.is_a?(::Portrayal::Default) ? country.get(self) : country; self.class.portrayal.enforce_contracts(self) end"
+[1] pry(main)> puts Address.portrayal.render_methods
+attr_accessor :street, :city, :postcode, :country
+protected :street=, :city=, :postcode=, :country=
+def initialize(street:, city:, postcode:, country: self.class.portrayal.schema[:country]); @street = street.is_a?(::Portrayal::Default) ? street.(self) : street; @city = city.is_a?(::Portrayal::Default) ? city.(self) : city; @postcode = postcode.is_a?(::Portrayal::Default) ? postcode.(self) : postcode; @country = country.is_a?(::Portrayal::Default) ? country.(self) : country end
+def hash; [self.class, {street: @street, city: @city, postcode: @postcode, country: @country}].hash end
+def ==(other); self.class == other.class && @street == other.instance_variable_get('@street') && @city == other.instance_variable_get('@city') && @postcode == other.instance_variable_get('@postcode') && @country == other.instance_variable_get('@country') end
+alias eql? ==
+def freeze; @street.freeze; @city.freeze; @postcode.freeze; @country.freeze; super end
+def initialize_dup(src); @street = src.instance_variable_get('@street').dup; @city = src.instance_variable_get('@city').dup; @postcode = src.instance_variable_get('@postcode').dup; @country = src.instance_variable_get('@country').dup; super end
+def initialize_clone(src); @street = src.instance_variable_get('@street').clone; @city = src.instance_variable_get('@city').clone; @postcode = src.instance_variable_get('@postcode').clone; @country = src.instance_variable_get('@country').clone; super end
+def deconstruct
+  public_syms = [:street, :city, :postcode, :country].select { |s| self.class.public_method_defined?(s) }
+  public_syms.map { |s| public_send(s) }
+end
+def deconstruct_keys(keys)
+  public_syms = [:street, :city, :postcode, :country].select {|s| self.class.public_method_defined?(s) }
+  keys = (Array === keys) ? (public_syms & keys) : public_syms
+  Hash[keys.map { |k| [k, public_send(k)] }]
+end
 ```
+
+#### Implementation decisions
+
+Here are some key architectural decisions that took a lot of thinking. If you have good counter-arguments please make an issue, or contact me on [mastodon](https://ruby.social/@maxim) / [twitter](https://twitter.com/hakunin).
+
+1. **Why do methods `#==`, `#eql?`, `#hash` rely on @instance @variables instead of calling reader methods?**  
+   For 2 reasons. Firstly, it's how Ruby structs work. Secondly, portrayal makes a careful assumption on what most people would expect from object equality: a comparison of type and runtime state (which is what instance variables are). Portrayal avoids comparing object structure and method return values, because it's too situational whether they should participate in equality or not. If you have such a situation, you're welcome to redefine `==` in your class.
+2. **Why do methods `clone` and `dup` copy @instance @variables instead of calling reader methods?**  
+   As with the reason for `==`, when we clone an object, we want to clone its type and runtime state. Not the artifacts of its structure. It's too presumptious for a clone to assume that method outputs are authoritative. If objects are written deterministically, then by cloning their inner runtime state we should get the same reader method outputs anyway. If methods are written non-deterministically, then you're welcome to redefine `initialize_clone`/`initialize_dup` in your class.
+3. **Why does pattern matching (`deconstruct`/`deconstruct_keys`) call reader methods rather than reading @instance @variables?**
+   Unlike equality or object replication, in case of pattern matching we're no longer trying to figure out object's identity, rather we are now an external caller trying to work directly with the values that an object exposes. That's why portrayal lets the object's reader methods decide how to expose data outwardly, while making a conscious effort to exclude private and protected readers from pattern matching. This is a departure from how Ruby structs work, since structs pattern match based on stored instance variable values. You're welcome to override `deconstruct` and `deconstruct_keys` in your class if you'd like to do something different.
 
 ## Development
 
