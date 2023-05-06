@@ -19,10 +19,10 @@ class Portrayal::Schema
     name = name.to_sym
     @schema.delete(name) # Forcing keyword to be added at the end of the hash.
     @schema[name] = default.equal?(NULL) ? nil : Portrayal::Default.new(default)
-    @module.module_eval(render_methods)
+    @module.module_eval(render_module_code)
   end
 
-  def render_methods
+  def render_module_code
     args, inits, syms, hash, eqls, dups, clones, setters, freezes =
       '', '', '', '', '', '', '', '', ''
 

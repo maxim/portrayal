@@ -468,10 +468,10 @@ If a particular constructor doesn't belong on your object (i.e. a 3rd party modu
 
 #### No Reinventing The Wheel
 
-Portrayal leans on Ruby's built-in features as much as possible. For initialize and default values it generates standard ruby keyword arguments. You can see all the code portrayal generates for your objects by running `YourClass.portrayal.render_methods`.
+Portrayal leans on Ruby's built-in features as much as possible. For initialize and default values it generates standard ruby keyword arguments. You can see all the code portrayal generates for your objects by running `YourClass.portrayal.render_module_code`.
 
 ```irb
-[1] pry(main)> puts Address.portrayal.render_methods
+[1] pry(main)> puts Address.portrayal.render_module_code
 attr_accessor :street, :city, :postcode, :country
 protected :street=, :city=, :postcode=, :country=
 def initialize(street:, city:, postcode:, country: self.class.portrayal.schema[:country]); @street = street.is_a?(::Portrayal::Default) ? street.(self) : street; @city = city.is_a?(::Portrayal::Default) ? city.(self) : city; @postcode = postcode.is_a?(::Portrayal::Default) ? postcode.(self) : postcode; @country = country.is_a?(::Portrayal::Default) ? country.(self) : country end
