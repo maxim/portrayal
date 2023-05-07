@@ -72,6 +72,14 @@ RSpec.describe Portrayal do
       expect(object.send(equality_method, :symbol)).to be false
     end
 
+    it 'falls back on super when compared with other portrayal classes' do
+      target.keyword :foo
+      target2 = Class.new(target)
+      object = target.new(foo: 'value')
+      object2 = target2.new(foo: 'value')
+      expect(object.send(equality_method, object2)).to be false
+    end
+
     it 'compares based on class' do
       target.keyword :foo
 
@@ -195,6 +203,41 @@ RSpec.describe Portrayal do
       expect { target::NestedClass1::NestedClass2 }.to_not raise_error
       expect(target::NestedClass1::NestedClass2.portrayal.keywords)
         .to eq([:foo])
+    end
+
+    it 'puts readers into their own modules when nesting' do
+      TEST_CLASS__ = target
+      class TEST_CLASS__
+        keyword :foo, default: 'foo'
+        keyword :nested_1, default: proc { Nested1.new } do
+          keyword :bar, default: 'bar'
+          keyword :nested_2, default: proc { self.class::Nested2.new } do
+            keyword :baz, default: 'baz'
+          end
+        end
+      end
+
+      t = target.new
+      nt = target::Nested1.new
+      nnt = target::Nested1::Nested2.new
+
+      expect(t).to respond_to(:foo)
+      expect(t).to respond_to(:nested_1)
+      expect(t).to_not respond_to(:bar)
+      expect(t).to_not respond_to(:nested_2)
+      expect(t).to_not respond_to(:baz)
+
+      expect(nt).to_not respond_to(:foo)
+      expect(nt).to_not respond_to(:nested_1)
+      expect(nt).to respond_to(:bar)
+      expect(nt).to respond_to(:nested_2)
+      expect(nt).to_not respond_to(:baz)
+
+      expect(nnt).to_not respond_to(:foo)
+      expect(nnt).to_not respond_to(:nested_1)
+      expect(nnt).to_not respond_to(:bar)
+      expect(nnt).to_not respond_to(:nested_2)
+      expect(nnt).to respond_to(:baz)
     end
 
     it 'inherits superclass of parent when defining nested classes' do
