@@ -56,24 +56,25 @@ class Person < MySuperClass
     @address = address
   end
 
-  def eql?(other)
-    self.class == other.class && self == other
+  def ==(other)
+    self.class == other.class &&
+      @name == other.instance_variable_get('@name') &&
+      @age == other.instance_variable_get('@age') &&
+      @favorite_fruit == other.instance_variable_get('@favorite_fruit') &&
+      @address == other.instance_variable_get('@address')
   end
 
-  def ==(other)
-    { name: name, age: age, favorite_fruit: favorite_fruit, address: address } ==
-      { name: other.name, age: other.age, favorite_fruit: other.favorite_fruit, address: other.address }
-  end
+  alias eql? ==
 
   def hash
-    [ self.class, { name: name, age: age, favorite_fruit: favorite_fruit, address: address } ].hash
+    [ self.class, { name: @name, age: @age, favorite_fruit: @favorite_fruit, address: @address } ].hash
   end
 
   def freeze
-    name.freeze
-    age.freeze
-    favorite_fruit.freeze
-    address.freeze
+    @name.freeze
+    @age.freeze
+    @favorite_fruit.freeze
+    @address.freeze
     super
   end
 
@@ -86,18 +87,18 @@ class Person < MySuperClass
   end
 
   def initialize_dup(source)
-    @name = source.name.dup
-    @age = source.age.dup
-    @favorite_fruit = source.favorite_fruit.dup
-    @address = source.address.dup
+    @name = source.instance_variable_get('@name').dup
+    @age = source.instance_variable_get('@age').dup
+    @favorite_fruit = source.instance_variable_get('@favorite_fruit').dup
+    @address = source.instance_variable_get('@address').dup
     super
   end
 
   def initialize_clone(source)
-    @name = source.name.clone
-    @age = source.age.clone
-    @favorite_fruit = source.favorite_fruit.clone
-    @address = source.address.clone
+    @name = source.instance_variable_get('@name').clone
+    @age = source.instance_variable_get('@age').clone
+    @favorite_fruit = source.instance_variable_get('@favorite_fruit').clone
+    @address = source.instance_variable_get('@address').clone
     super
   end
 
@@ -114,21 +115,21 @@ class Person < MySuperClass
       "#{street}, #{city}"
     end
 
-    def eql?(other)
-      self.class == other.class && self == other
+    def ==(other)
+      self.class == other.class && 
+        @street == other.instance_variable_get('@street') &&
+        @city == other.instance_variable_get('@city')
     end
 
-    def ==(other)
-      { street: street, city: city } == { street: other.street, city: other.city }
-    end
+    alias eql? ==
 
     def hash
-      [ self.class, { street: street, city: city } ].hash
+      [ self.class, { street: @street, city: @city } ].hash
     end
 
     def freeze
-      street.freeze
-      city.freeze
+      @street.freeze
+      @city.freeze
       super
     end
 
@@ -141,14 +142,14 @@ class Person < MySuperClass
     end
 
     def initialize_dup(source)
-      @street = source.street.dup
-      @city = source.city.dup
+      @street = source.instance_variable_get('@street').dup
+      @city = source.instance_variable_get('@city').dup
       super
     end
 
     def initialize_clone(source)
-      @street = source.street.clone
-      @city = source.city.clone
+      @street = source.instance_variable_get('@street').clone
+      @city = source.instance_variable_get('@city').clone
       super
     end
   end
