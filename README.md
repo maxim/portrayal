@@ -395,7 +395,7 @@ Since a portrayal object is read-only (nothing stops you from adding writers, bu
 class Address < ApplicationStruct
   class << self
     def from_form(params)
-      raise ArgumentError, 'invalid postcode' unless postcode =~ /\A\d+\z/
+      raise ArgumentError, 'invalid postcode' if params[:postcode] !~ /\A\d+\z/
 
       new \
         street:   params[:street].to_s,

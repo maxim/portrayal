@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+# This file is a set of benchmarks directly or tangentially related to
+# implementation decisions.
+
 require 'bundler/setup'
 require 'portrayal'
 require 'benchmark/ips'

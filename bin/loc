@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
+# Count LOC in the project for pasting into README.
 find lib -name '*.rb' | xargs wc -l

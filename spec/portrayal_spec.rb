@@ -28,7 +28,19 @@ RSpec.describe Portrayal do
     expect(hash[object3]).to eq('1')
   end
 
-  shared_examples 'equality based on keywords' do
+  shared_examples 'equality based on class and keywords' do
+    it 'compares based on class' do
+      target.keyword :foo
+
+      target2 = Class.new { extend Portrayal }
+      target2.keyword :foo
+
+      object1 = target.new(foo: 'foo')
+      object2 = target2.new(foo: 'foo')
+
+      expect(object1.send(equality_method, object2)).to be false
+    end
+
     it 'compares by keyword names and values' do
       target.keyword :foo
       object1 = target.new(foo: 'foo')
@@ -79,18 +91,16 @@ RSpec.describe Portrayal do
       object2 = target2.new(foo: 'value')
       expect(object.send(equality_method, object2)).to be false
     end
+  end
 
-    it 'compares based on class' do
-      target.keyword :foo
+  describe '#==' do
+    let(:equality_method) { :== }
+    it_behaves_like 'equality based on class and keywords'
+  end
 
-      target2 = Class.new { extend Portrayal }
-      target2.keyword :foo
-
-      object1 = target.new(foo: 'foo')
-      object2 = target2.new(foo: 'foo')
-
-      expect(object1.send(equality_method, object2)).to be false
-    end
+  describe '#eql?' do
+    let(:equality_method) { :eql? }
+    it_behaves_like 'equality based on class and keywords'
   end
 
   describe '.new' do
@@ -312,16 +322,6 @@ RSpec.describe Portrayal do
 
       expect(target.new.foo).to eq('from module with override')
     end
-  end
-
-  describe '#==' do
-    let(:equality_method) { :== }
-    it_behaves_like 'equality based on keywords'
-  end
-
-  describe '#eql?' do
-    let(:equality_method) { :eql? }
-    it_behaves_like 'equality based on keywords'
   end
 
   describe '#hash' do

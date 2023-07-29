@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# This is a demo of what module code looks like, for pasting into README.
+
 require 'bundler/setup'
 require 'portrayal'
 
