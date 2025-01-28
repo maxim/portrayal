@@ -23,8 +23,8 @@ class Portrayal::Schema
   end
 
   def render_module_code
-    args, inits, syms, hash, eqls, dups, clones, setters, freezes =
-      '', '', '', '', '', '', '', '', ''
+    args, inits, syms, hash, eqls, dups, clones, setters, freezes, aliases =
+      +'', +'', +'', +'', +'', +'', +'', +'', +'', +'' # + keeps string unfrozen
 
     @schema.each do |k, default|
       args  << "#{k}:#{default && " self.class.portrayal.schema[:#{k}]"}, "
@@ -36,6 +36,7 @@ class Portrayal::Schema
       clones  << "@#{k} = src.instance_variable_get('@#{k}').clone; "
       setters << ":#{k}=, "
       freezes << "@#{k}.freeze; "
+      aliases << "alias #{k} #{k}; alias #{k}= #{k}=; "
     end
 
     args.chomp!(', ')    # key1:, key2: self.class.portrayal.schema[:key2]
@@ -47,7 +48,10 @@ class Portrayal::Schema
     clones.chomp!('; ')  # @key1 = src.instance_variable_get('@key1').clone;
     setters.chomp!(', ') # :key1=, :key2=
     freezes.chomp!('; ') # @key1.freeze; @key2.freeze
+    aliases.chomp!('; ') # alias key1 key1; alias key1= key1=
 
+    # Aliases at the bottom help prevent method redefinition warnings.
+    # See https://bugs.ruby-lang.org/issues/17055 for details.
     <<-RUBY
 attr_accessor #{syms}
 protected #{setters}
@@ -67,6 +71,16 @@ def deconstruct_keys(keys)
   filtered_keys &= keys if Array === keys
   Hash[filtered_keys.map { |k| [k, public_send(k)] }]
 end
+alias initialize initialize
+alias hash hash
+alias == ==
+alias eql? eql?
+alias freeze freeze
+alias initialize_dup initialize_dup
+alias initialize_clone initialize_clone
+alias deconstruct deconstruct
+alias deconstruct_keys deconstruct_keys
+#{aliases}
     RUBY
   end
 end
