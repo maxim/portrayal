@@ -2,6 +2,8 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.9.1 - 2025-01-28
+
 * Add aliases for all redefined methods to suppress method redefinition warnings.
 * Add `+''` to mutated strings to suppress Ruby 3.4 frozen string literal warnings.
 
