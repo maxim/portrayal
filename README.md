@@ -8,7 +8,7 @@ Inspired by:
   - Piotr Solnica's [virtus](https://github.com/solnic/virtus)
   - Everything [Michel Martens](https://github.com/soveran)
 
-Portrayal is a minimalist gem (~110 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
+Portrayal is a minimalist gem (~122 loc, no dependencies) for building struct-like classes. It provides a small yet powerful step up from plain ruby with its one and only `keyword` method.
 
 ```ruby
 class Person < MySuperClass
@@ -491,6 +491,16 @@ def deconstruct_keys(keys)
   filtered_keys &= keys if Array === keys
   Hash[filtered_keys.map { |k| [k, public_send(k)] }]
 end
+alias initialize initialize
+alias hash hash
+alias == ==
+alias eql? eql?
+alias freeze freeze
+alias initialize_dup initialize_dup
+alias initialize_clone initialize_clone
+alias deconstruct deconstruct
+alias deconstruct_keys deconstruct_keys
+alias street street; alias street= street=; alias city city; alias city= city=; alias postcode postcode; alias postcode= postcode=; alias country country; alias country= country=
 ```
 
 #### Implementation decisions
